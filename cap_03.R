@@ -155,9 +155,75 @@ transmute(flights_sml,
        gain_per_hour = gain / hours
 )
 
+
 # Coisas complementares do mutate
 transmute(flights, 
       dep_time, 
       hour = dep_time %/% 100,
       minute = dep_time %% 100
       )
+
+#### Summarise
+summarise(flights, delay = mean(dep_delay, na.rm = TRUE))
+
+
+by_da <- group_by(flights, year, month, day)
+
+summarise(by_da, mean(dep_delay, na.rm = TRUE))
+
+
+# Utilizando o PIPE %>%
+
+flights %>%
+  group_by(year, month, day) %>% 
+  summarise(delay = mean(dep_delay, na.rm = TRUE))
+
+
+# Pegando voos nao cancelados
+not_cancelled <- flights %>%
+                  filter(!is.na(dep_delay) & !is.na(arr_delay))
+
+not_cancelled %>%
+  group_by(year, month, day) %>%
+  summarise(delay = mean(dep_delay))
+
+
+delays <- not_cancelled %>%
+            group_by(tailnum) %>%
+            summarise(
+              delay = mean(arr_delay)
+            )
+ggplot(data = delays, mapping = aes(x = delay)) +
+  geom_freqpoly(binwidth=10)
+
+
+delays <- not_cancelled %>%
+            group_by(tailnum) %>%
+            summarise(
+              delay = mean(arr_delay, na.rm = TRUE),
+              n = n()
+            )
+
+ggplot(data = delays, mapping = aes(x= n, y = delay)) +
+  geom_point(alpha = 1/10)
+
+
+delays %>%
+  filter(n > 25) %>%
+  ggplot(mapping = aes(x= n, y = delay)) +
+  geom_point(alpha = 1/10)
+
+
+# alguma funções que compõe uma melhor analise estatistica
+# mean()
+# median()
+# sd()
+# IQR()
+# min()
+# max()
+# quantile(x, 25)
+# n()
+# sum(!is.na())
+# n_distinct()
+# sum()
+
