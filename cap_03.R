@@ -71,3 +71,93 @@ saida_12_6 <- filter( flights, (dep_time %/% 100) >= 0 & (dep_time %/% 100) <= 6
 # 3
 # dep_time faltante
 dep_time_na <- filter(flights, is.na(dep_time)); count(dep_time_na)
+
+
+#### Arrange
+arrange(flights, year, month, day)
+
+# Ordem decrescente
+arrange(flights, desc(arr_delay))
+
+# Exercicios pag 51
+
+# 1 - Ordenar voos faltantes no começo
+
+arrange(flights, !is.na(arr_time), !is.na(dep_time), !is.na(dep_delay), !is.na(arr_delay))
+
+# 2 Vôos mais atrasados, encontrar os sairam mais cedo
+
+arrange(flights, dep_delay)
+
+# 4
+View(flights)
+
+#a
+arrange(flights, desc(hour), desc(minute))
+
+# b
+arrange(flights, hour, minute)
+
+
+#### Select
+# Selecionando ano, mes e dia
+select(flights, year, month, day)
+# Selecionando ano até dia
+select(flights, year:day)
+# Selecionando tudo menos os que está entre ano e dia
+select(flights, -(year:day))
+
+
+#** rename
+rename(flights, tail_num = tailnum)
+
+# Selecionar algumas colunas no começo, e depois restante
+select(flights, year, month, day, everything())
+
+# Exercicios
+
+# 2 - A coluna aparece uma vez só, mesmo declarando duas vezes
+select(flights, year, year, month, day)
+
+# 3 
+?one_of
+?select
+
+
+# 4
+select(flights, contains("TIME"))
+# Poderia usar igonar case off para só vir com o texto digitado corretamente
+
+
+#### Mutate
+flights_sml <- select(flights,
+                      year:day,
+                      ends_with("delay"),
+                      distance,
+                      air_time)
+# Cria duas colunas Gain e Speed, no final do data
+mutate(flights_sml, 
+       gain = arr_delay - dep_delay,
+       speed = distance / air_time * 60)
+
+
+# Usando propria variada criada no mutate
+mutate(flights_sml,
+      gain = arr_delay - dep_delay,
+      hours = air_time / 60,
+      gain_per_hour = gain / hours
+      )
+
+# Transmute só retorna as colunas criadas
+transmute(flights_sml,
+       gain = arr_delay - dep_delay,
+       hours = air_time / 60,
+       gain_per_hour = gain / hours
+)
+
+# Coisas complementares do mutate
+transmute(flights, 
+      dep_time, 
+      hour = dep_time %/% 100,
+      minute = dep_time %% 100
+      )
